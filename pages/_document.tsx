@@ -36,8 +36,7 @@ class MyDocument extends Document {
             <Html>
                 <Head>
                     {
-                        // @ts-ignore
-                        this.props.styleTags
+
                     }
                 </Head>
                 <body>
