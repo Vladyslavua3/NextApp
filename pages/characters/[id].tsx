@@ -4,19 +4,20 @@ import {PageWrapper} from "../../components/PageWrapper/PageWrapper";
 import {CharacterCard} from "../../components/Card/CharacterCard/CharacterCard";
 import {getLayout} from "../../components/Layout/BaseLayout/BaseLayout";
 import {GetStaticPaths, GetStaticProps} from "next";
+import {useRouter} from "next/router";
+import styled from "styled-components";
 
 
-
-export const getStaticPaths:GetStaticPaths = async () => {
+export const getStaticPaths: GetStaticPaths = async () => {
     const {results} = await API.rickAndMorty.getCharacters()
 
     const paths = results.map(character => ({
-        params:{id:String(character.id)}
+        params: {id: String(character.id)}
     }))
 
-    return{
+    return {
         paths,
-        fallback:false
+        fallback: true
     }
 }
 
@@ -37,17 +38,29 @@ export const getStaticProps: GetStaticProps = async ({params}) => {
 }
 
 type PropsType = {
-    character:CharacterType
+    character: CharacterType
 }
 
-const Character = (props:PropsType) => {
+const Character = (props: PropsType) => {
 
     const {character} = props
+
+    const router = useRouter()
+
+    if (router.isFallback) return <h1>Loading...</h1>
+
+    const characterId = router.query.id
+
+    const goToCharacters = () => router.push('/characters')
 
 
     return (
         <PageWrapper>
-            <CharacterCard key={character.id} character={character}/>
+            <Container>
+                <IdText>ID:{characterId}</IdText>
+                <CharacterCard key={character.id} character={character}/>
+                <Button onClick={goToCharacters}>GO TO CHARACTERS</Button>
+            </Container>
         </PageWrapper>
     )
 }
@@ -56,3 +69,29 @@ const Character = (props:PropsType) => {
 Character.getLayout = getLayout
 
 export default Character
+
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 20px;
+`
+
+
+const Button = styled.button`
+  width: 330px;
+  height: 60px;
+  border-radius: 4px;
+  border: none;
+  background: #facaff;
+
+  &:hover {
+    background: #fa52d3;
+    color: aliceblue;
+  }
+`
+
+const IdText = styled.div`
+  font-size: 38px;
+`
